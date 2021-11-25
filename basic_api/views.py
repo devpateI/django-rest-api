@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 # @csrf_exempt #only for basic api
 @api_view(['GET', 'POST'])
-def article_list(request):
+def article_list(request, format = None):
     """
     List all code articles, or create a new article.
     """
@@ -43,7 +43,7 @@ def article_list(request):
 
 # @csrf_exempt #only for basic api
 @api_view(['GET', 'PUT', 'DELETE'])
-def article_detail(request, pk):
+def article_detail(request, pk, format = None):
     """
     Retrieve, update or delete a code article.
     """
