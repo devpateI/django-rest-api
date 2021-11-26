@@ -1,7 +1,7 @@
-# from django.shortcuts import render
+from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-# from django.views.decorators.csrf import csrf_exempt
-# from rest_framework.parsers import JSONParser
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.parsers import JSONParser
 from .models import Article
 from .serializers import ArticleSerializer
 from rest_framework import status
@@ -12,7 +12,42 @@ from rest_framework import generics
 from rest_framework import mixins
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets
+from django.shortcuts import get_object_or_404
 # Create your views here.
+
+#********************************************************************************************************    
+
+
+#creating viewsets
+class ArticleViewset(viewsets.ViewSet):
+    def list(self, request):
+        articles = Article.objects.all()
+        serializer = ArticleSerializer(articles, many=True)
+        return Response(serializer.data)
+    def create(self, request):
+        serializer = ArticleSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def retrieve(self, request, pk= None):
+        queryset = Article.objects.all()
+        article = get_object_or_404(queryset,pk=pk)
+        serializer = ArticleSerializer(article)
+        return Response(serializer.data)
+
+    def update(self, request, pk= None):
+        article = Article.objects.get(pk=pk)
+        serializer = ArticleSerializer(article, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#********************************************************************************************************    
+
 
 #Generic View 
 class GenericArticleAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
@@ -31,7 +66,7 @@ class GenericDetailApiView(generics.GenericAPIView, mixins.RetrieveModelMixin,mi
     queryset = Article.objects.all()
     lookup_field = 'id'
     # authentication_classes = [SessionAuthentication, BasicAuthentication] #for basic Authentication
-    authentication_classes = [TokenAuthentication] #for Token authentication_classes
+    authentication_classes = [TokenAuthentication] #for Token authentication
     permission_classes = [IsAuthenticated]
     def get(self, request, id=None ):
         return self.retrieve(request)
@@ -42,6 +77,7 @@ class GenericDetailApiView(generics.GenericAPIView, mixins.RetrieveModelMixin,mi
     def delete(self, request, id):
         return self.delete(request,id)
     
+#********************************************************************************************************    
 
 # Class based API VIews.
 class ArticleAPIView(APIView):
@@ -82,7 +118,7 @@ class ArticleDetail(APIView):
         article.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    #****************************************************************************************************    
+#********************************************************************************************************    
 
 # @csrf_exempt #only for basic api
 # @api_view(['GET', 'POST'])
@@ -172,4 +208,3 @@ class ArticleDetail(APIView):
     #     return Response(status=status.HTTP_204_NO_CONTENT)
 
     #****************************************************************************************************
-    
