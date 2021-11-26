@@ -7,5 +7,7 @@ urlpatterns = [
     path('articles/', views.ArticleAPIView.as_view()),
     # path('articles/<int:pk>/', views.article_detail),
     path('articles/<int:pk>/', views.ArticleDetail.as_view()),
+    path('generic/articles/' ,views.GenericArticleAPIView.as_view()),
+    path('generic/articles/<int:id>/' ,views.GenericDetailApiView.as_view()),
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)
