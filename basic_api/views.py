@@ -5,17 +5,21 @@ from django.http import HttpResponse, JsonResponse
 from .models import Article
 from .serializers import ArticleSerializer
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import mixins
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 #Generic View 
 class GenericArticleAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = ArticleSerializer
     queryset = Article.objects.all()
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         return self.list(request)
 
@@ -26,6 +30,9 @@ class GenericDetailApiView(generics.GenericAPIView, mixins.RetrieveModelMixin,mi
     serializer_class = ArticleSerializer
     queryset = Article.objects.all()
     lookup_field = 'id'
+    # authentication_classes = [SessionAuthentication, BasicAuthentication] #for basic Authentication
+    authentication_classes = [TokenAuthentication] #for Token authentication_classes
+    permission_classes = [IsAuthenticated]
     def get(self, request, id=None ):
         return self.retrieve(request)
 
