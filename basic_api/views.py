@@ -16,15 +16,16 @@ from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 # Create your views here.
 
-#********************************************************************************************************    
+# ********************************************************************************************************
 
 
-#creating viewsets
+# creating viewsets
 class ArticleViewset(viewsets.ViewSet):
     def list(self, request):
         articles = Article.objects.all()
         serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data)
+
     def create(self, request):
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid():
@@ -32,13 +33,13 @@ class ArticleViewset(viewsets.ViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def retrieve(self, request, pk= None):
+    def retrieve(self, request, pk=None):
         queryset = Article.objects.all()
-        article = get_object_or_404(queryset,pk=pk)
+        article = get_object_or_404(queryset, pk=pk)
         serializer = ArticleSerializer(article)
         return Response(serializer.data)
 
-    def update(self, request, pk= None):
+    def update(self, request, pk=None):
         article = Article.objects.get(pk=pk)
         serializer = ArticleSerializer(article, data=request.data)
         if serializer.is_valid():
@@ -46,46 +47,51 @@ class ArticleViewset(viewsets.ViewSet):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#********************************************************************************************************    
+# ********************************************************************************************************
 
 
-#Generic View 
+# Generic View
 class GenericArticleAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = ArticleSerializer
     queryset = Article.objects.all()
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         return self.list(request)
 
     def post(self, request):
         return self.create(request)
 
-class GenericDetailApiView(generics.GenericAPIView, mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,):
+
+class GenericDetailApiView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,):
     serializer_class = ArticleSerializer
     queryset = Article.objects.all()
     lookup_field = 'id'
     # authentication_classes = [SessionAuthentication, BasicAuthentication] #for basic Authentication
-    authentication_classes = [TokenAuthentication] #for Token authentication
+    authentication_classes = [TokenAuthentication]  # for Token authentication
     permission_classes = [IsAuthenticated]
-    def get(self, request, id=None ):
+
+    def get(self, request, id=None):
         return self.retrieve(request)
 
-    def put(self, request , id= None):
+    def put(self, request, id=None):
         return self.update(request, id)
-    
+
     def delete(self, request, id):
-        return self.delete(request,id)
-    
-#********************************************************************************************************    
+        return self.delete(request, id)
+
+# ********************************************************************************************************
 
 # Class based API VIews.
+
+
 class ArticleAPIView(APIView):
     def get(self, request):
         articles = Article.objects.all()
         serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data)
-    
+
     def post(Self, request):
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid():
@@ -93,8 +99,9 @@ class ArticleAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ArticleDetail(APIView):
-    def get_object(self,pk):
+    def get_object(self, pk):
         try:
             return Article.objects.get(id=pk)
         except Article.DoesNotExist:
@@ -118,7 +125,7 @@ class ArticleDetail(APIView):
         article.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-#********************************************************************************************************    
+# ********************************************************************************************************
 
 # @csrf_exempt #only for basic api
 # @api_view(['GET', 'POST'])
@@ -139,7 +146,7 @@ class ArticleDetail(APIView):
     #         return JsonResponse(serializer.data, status=201)
     #     return JsonResponse(serializer.errors, status=400)
 
-    #****************************************************************************************************
+    # ****************************************************************************************************
 
     # for Using Django API view
     # if request.method == 'GET':
@@ -154,7 +161,7 @@ class ArticleDetail(APIView):
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    #****************************************************************************************************
+    # ****************************************************************************************************
 
 # @csrf_exempt #only for basic api
 # @api_view(['GET', 'PUT', 'DELETE'])
@@ -183,8 +190,7 @@ class ArticleDetail(APIView):
     #     article.delete()
     #     return HttpResponse(status=204)
 
-    #****************************************************************************************************
-
+    # ****************************************************************************************************
 
     # For API View
     # try:
@@ -207,4 +213,4 @@ class ArticleDetail(APIView):
     #     article.delete()
     #     return Response(status=status.HTTP_204_NO_CONTENT)
 
-    #****************************************************************************************************
+    # ****************************************************************************************************
